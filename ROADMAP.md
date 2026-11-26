@@ -7,8 +7,9 @@ Marcar únicamente entregas verificadas. Mantener un paso siguiente.
 - [x] Prototipo de acceso por correo o nick desplegado
 - [x] Prototipo visual de dos roles y editor (código en repositorio)
 - [x] Diseño aprobado de logo e icono
-- [ ] Incorporar imagen original y tamaños de icono; actualizar manifiesto
-- [ ] Bienvenida y selección de rol
+- [x] Incorporar imagen original y tamaños de icono; actualizar manifiesto
+- [x] Bienvenida (código en repositorio; verificar despliegue)
+- [ ] Selección de rol definitiva
 - [ ] Paneles responsive y navegación
 - [ ] Editor de colores, texturas, fondos, mosaicos, stickers y guardado
 - [ ] Arquetipos, perfiles independientes, emblemas y collares voluntarios
