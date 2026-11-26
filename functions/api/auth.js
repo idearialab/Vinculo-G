@@ -13,7 +13,7 @@ const email=String(b.email||'').trim().toLowerCase(),p=String(b.password||'');
 if(!email||email.length>254||p.length<12||p.length>128||(b.action==='register'&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))return reply({error:'Correo o contraseña inválidos'},400);
 let u;
 if(b.action==='register'){
-const name=String(b.name||'').trim();if(!name||name.length>80||b.adult!==true||!['dominant','submissive'].includes(b.role))return reply({error:'Datos inválidos'},400);
+const name=String(b.name||'').trim();if(email==='idearialab81@gmail.com'||name.normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g,'')==='domg')return reply({error:'Identidad reservada'},400);if(!name||name.length>80||b.adult!==true||!['dominant','submissive'].includes(b.role))return reply({error:'Datos inválidos'},400);
 const salt=random(),id=crypto.randomUUID();
 try{await env.DB.prepare('INSERT INTO users(id,email,display_name,role,password_hash,password_salt,adult_confirmed) VALUES(?,?,?,?,?,?,1)').bind(id,email,name,b.role,await hash(p,salt),salt).run();}catch{return reply({error:'No se pudo registrar la cuenta'},400);}
 u={id,display_name:name,role:b.role,is_founder:0};
