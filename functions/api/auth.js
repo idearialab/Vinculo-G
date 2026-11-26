@@ -10,7 +10,7 @@ try{
 const b=await request.json();
 if(b.action==='logout'){const t=request.headers.get('Cookie')?.match(/(?:^|; )vg_session=([a-f0-9]{64})/)?.[1];if(t)await env.DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(await digest(t)).run();return reply({ok:true},200,'vg_session=; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=0');}
 const email=String(b.email||'').trim().toLowerCase(),p=String(b.password||'');
-if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||p.length<12||p.length>128)return reply({error:'Correo o contraseña inválidos'},400);
+if(!email||email.length>254||p.length<12||p.length>128||(b.action==='register'&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))return reply({error:'Correo o contraseña inválidos'},400);
 let u;
 if(b.action==='register'){
 const name=String(b.name||'').trim();if(!name||name.length>80||b.adult!==true||!['dominant','submissive'].includes(b.role))return reply({error:'Datos inválidos'},400);
@@ -18,7 +18,7 @@ const salt=random(),id=crypto.randomUUID();
 try{await env.DB.prepare('INSERT INTO users(id,email,display_name,role,password_hash,password_salt,adult_confirmed) VALUES(?,?,?,?,?,?,1)').bind(id,email,name,b.role,await hash(p,salt),salt).run();}catch{return reply({error:'No se pudo registrar la cuenta'},400);}
 u={id,display_name:name,role:b.role,is_founder:0};
 }else if(b.action==='login'){
-u=await env.DB.prepare('SELECT * FROM users WHERE email=?').bind(email).first();
+u=await env.DB.prepare('SELECT * FROM users WHERE email=? OR username=? COLLATE NOCASE').bind(email,email).first();
 const h=await hash(p,u?.password_salt||'dummy');
 if(!u||h!==u.password_hash)return reply({error:'Credenciales inválidas'},401);
 }else return reply({error:'Acción inválida'},400);
