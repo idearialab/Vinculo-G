@@ -14,3 +14,6 @@
 - Exclusividad unilateral: una parte mantiene un único vínculo y acepta expresamente la no exclusividad de la otra. Monogamia mutua exige exclusividad de ambas.
 - Familias múltiples con membresía y visibilidad independientes; propuestas de presentación iniciadas por el dominante, con aceptación individual antes de revelar identidades. No ocultar incumplimientos de exclusividad.
 - Promover atención equitativa mediante agenda, revisión voluntaria de acuerdos y necesidades individuales, sin vigilancia ni sanciones por retirar consentimiento.
+
+## Aislamiento entre vínculos
+El fundador tiene capacidad ilimitada de vínculos personales y mentorías independientes. Cada participante recibe exclusivamente sus propios vínculos, sin contadores, nombres, etapas ni avisos sobre terceros. Mostrar preferencia de no exclusividad y acordarla expresamente antes de establecer vínculos incompatibles con exclusividad mutua. Las agrupaciones se proponen por el dominante; cada persona acepta individualmente antes de revelar identidad o membresía. Sin acceso cruzado a diarios, agendas privadas o conversaciones. Aplicar también a pupilas, notificaciones y metadatos. Pendiente: mentorías, acuerdos persistentes, agrupaciones y pruebas de aislamiento.
