@@ -9,12 +9,26 @@ if(request.headers.get('Origin')!==new URL(request.url).origin)return reply({err
 try{
 const b=await request.json();
 if(b.action==='logout'){const t=request.headers.get('Cookie')?.match(/(?:^|; )vg_session=([a-f0-9]{64})/)?.[1];if(t)await env.DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(await digest(t)).run();return reply({ok:true},200,'vg_session=; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=0');}
-const email=String(b.email||'').trim().toLowerCase(),p=String(b.password||'');
-if(!email||email.length>254||p.length<12||p.length>128||(b.action==='register'&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))return reply({error:'Correo o contraseña inválidos'},400);
 const ip=request.headers.get('CF-Connecting-IP')||'unknown';
 const now=Date.now(),windowMs=900000;
 async function limit(key,max){const bucket=await digest(key);const row=await env.DB.prepare('INSERT INTO auth_limits(bucket,attempts,window_start) VALUES(?,1,?) ON CONFLICT(bucket) DO UPDATE SET attempts=CASE WHEN window_start<=? THEN 1 ELSE attempts+1 END,window_start=CASE WHEN window_start<=? THEN excluded.window_start ELSE window_start END RETURNING attempts').bind(bucket,now,now-windowMs,now-windowMs).first();return row.attempts<=max;}
-if(['login','register'].includes(b.action)){if(!await limit('ip:'+ip,40)||!await limit('identity:'+email,10))return reply({error:'Demasiados intentos. Espera 15 minutos.'},429);}
+if(b.action==='change_password'){
+const t=request.headers.get('Cookie')?.match(/(?:^|; )vg_session=([a-f0-9]{64})/)?.[1];
+if(!t)return reply({error:'Sin sesión'},401);
+const u=await env.DB.prepare('SELECT u.* FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>?').bind(await digest(t),now).first();
+if(!u)return reply({error:'Sin sesión'},401);
+if(!await limit('change:'+u.id,8))return reply({error:'Espera 15 minutos'},429);
+const old=String(b.current||''),next=String(b.next||'');
+if(old.length>128||next.length<12||next.length>128||next===old||/^\d+$/.test(next))return reply({error:'Elige una contraseña nueva de 12 a 128 caracteres, no solo números'},400);
+if(await hash(old,u.password_salt)!==u.password_hash)return reply({error:'Contraseña actual incorrecta'},401);
+const salt=random(),h=await hash(next,salt);
+const results=await env.DB.batch([env.DB.prepare('UPDATE users SET password_hash=?,password_salt=? WHERE id=? AND password_hash=?').bind(h,salt,u.id,u.password_hash),env.DB.prepare('DELETE FROM sessions WHERE user_id=? AND EXISTS (SELECT 1 FROM users WHERE id=? AND password_hash=?)').bind(u.id,u.id,h)]);
+if(!results[0].meta.changes)return reply({error:'Vuelve a iniciar sesión'},409);
+return reply({ok:true},200,'vg_session=; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=0');
+}
+const email=String(b.email||'').trim().toLowerCase(),p=String(b.password||'');
+if(!email||email.length>254||p.length<12||p.length>128||(b.action==='register'&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))return reply({error:'Correo o contraseña inválidos'},400);
+if(['login','register'].includes(b.action)){if(!await limit('ip:'+ip,40)||!await limit('identity:'+ip+':'+email,10))return reply({error:'Demasiados intentos. Espera 15 minutos.'},429);}
 let u;
 if(b.action==='register'){
 const username=String(b.username||'').trim();const name=String(b.name||'').trim();if(!/^[a-zA-Z0-9][a-zA-Z0-9 _.-]{2,29}$/.test(username)||username.normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g,'')==='domg')return reply({error:'Nick inválido o reservado'},400);if(email==='idearialab81@gmail.com'||name.normalize('NFKC').toLowerCase().replace(/[^a-z0-9]/g,'')==='domg')return reply({error:'Identidad reservada'},400);if(!name||name.length>80||b.adult!==true||!['dominant','submissive'].includes(b.role))return reply({error:'Datos inválidos'},400);
