@@ -14,7 +14,7 @@ if(request.method!=='POST'||request.headers.get('Origin')!==new URL(request.url)
 const b=await request.json();
 if(b.action==='create'&&u.role==='dominant'){
 const code=Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
-const expires=now+86400000;
+const expires=now+172800000;
 const r=await db.prepare('INSERT INTO invitations(code_hash,creator_id,expires_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM invitations WHERE creator_id=? AND expires_at>? AND revoked_at IS NULL AND consumed_at IS NULL)<10').bind(await digest(code),u.id,expires,u.id,now).run();
 return r.meta.changes?reply({ok:true,code,expires}):reply({error:'Máximo de 10 invitaciones activas'},429);
 }
