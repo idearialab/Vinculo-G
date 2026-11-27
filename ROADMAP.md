@@ -9,11 +9,13 @@ Marcar únicamente entregas verificadas. Mantener un paso siguiente.
 - [x] Diseño aprobado de logo e icono
 - [x] Incorporar imagen original y tamaños de icono; actualizar manifiesto
 - [x] Bienvenida (código en repositorio; verificar despliegue)
-- [ ] Selección de rol definitiva
+- [x] Activación fundador confirmada por inicio de sesión
+- [x] Botón mostrar contraseña
+- [x] Selección gráfica de rol y registro con nick (código publicado en repositorio; prueba pendiente)
 - [ ] Paneles responsive y navegación
 - [ ] Editor de colores, texturas, fondos, mosaicos, stickers y guardado
 - [ ] Arquetipos, perfiles independientes, emblemas y collares voluntarios
-- [ ] Seguridad: límites de intentos, recuperación, sesiones, verificación y activación fundador; gesto abre autenticación, no concede acceso
+- [ ] Seguridad: límites de intentos, recuperación, sesiones, verificación y cambio de contraseña provisional del fundador; gesto abre autenticación, no concede acceso
 - [ ] Invitaciones y vínculos revocables, permisos y privacidad
 - [ ] Acuerdos SSC/RACK/CNC y personalizados, protocolos voluntarios
 - [ ] Actividades, recordatorios y reconocimientos sin represalias
