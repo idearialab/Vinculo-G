@@ -18,8 +18,8 @@ const expires=now+172800000;
 const r=await db.prepare('INSERT INTO invitations(code_hash,creator_id,expires_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM invitations WHERE creator_id=? AND expires_at>? AND revoked_at IS NULL AND consumed_at IS NULL)<10').bind(await digest(code),u.id,expires,u.id,now).run();
 return r.meta.changes?reply({ok:true,code,expires}):reply({error:'Máximo de 10 invitaciones activas'},429);
 }
-if(b.action==='revoke'){await db.prepare('UPDATE invitations SET revoked_at=? WHERE code_hash=? AND creator_id=? AND consumed_at IS NULL').bind(now,String(b.id),u.id).run();return reply({ok:true});}
-if(b.action==='end'){await db.prepare('UPDATE relationships SET ended_at=? WHERE id=? AND (dominant_id=? OR submissive_id=?) AND ended_at IS NULL').bind(now,String(b.id),u.id,u.id).run();return reply({ok:true});}
+if(b.action==='revoke'){const result=await db.prepare('UPDATE invitations SET revoked_at=? WHERE code_hash=? AND creator_id=? AND consumed_at IS NULL AND rejected_at IS NULL AND revoked_at IS NULL AND expires_at>?').bind(now,String(b.id),u.id,now).run();return result.meta.changes?reply({ok:true}):reply({error:'Invitación no disponible'},404);}
+if(b.action==='end'){const result=await db.prepare('UPDATE relationships SET ended_at=? WHERE id=? AND (dominant_id=? OR submissive_id=?) AND ended_at IS NULL').bind(now,String(b.id),u.id,u.id).run();return result.meta.changes?reply({ok:true}):reply({error:'Vínculo no disponible'},404);}
 if(['preview','accept','reject'].includes(b.action)&&u.role==='submissive'){
 const code=String(b.code||'').trim().toLowerCase();if(!/^[a-f0-9]{32}$/.test(code))return reply({error:'Código inválido'},400);
 const h=await digest(code);
